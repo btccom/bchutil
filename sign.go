@@ -23,13 +23,14 @@ const (
 func RawTxInSignature(tx *wire.MsgTx, idx int, subScript []byte,
 	hashType txscript.SigHashType, key *btcec.PrivateKey, amt int64) ([]byte, error) {
 
-	hash := calcBip143SignatureHash(subScript, txscript.NewTxSigHashes(tx), hashType, tx, idx, amt)
+	/*hash := calcBip143SignatureHash(subScript, txscript.NewTxSigHashes(tx), hashType, tx, idx, amt)
 	signature, err := key.Sign(hash)
 	if err != nil {
 		return nil, fmt.Errorf("cannot sign tx input: %s", err)
 	}
 
-	return append(signature.Serialize(), byte(hashType|SigHashForkID)), nil
+	return append(signature.Serialize(), byte(hashType|SigHashForkID)), nil*/
+	return []byte{}, nil
 }
 
 func SignTxOutput(chainParams *chaincfg.Params, tx *wire.MsgTx, idx int,
@@ -104,7 +105,7 @@ func calcBip143SignatureHash(subScript []byte, sigHashes *txscript.TxSigHashes,
 	// If anyone can pay isn't active, then we can use the cached
 	// hashPrevOuts, otherwise we just write zeroes for the prev outs.
 	if hashType&txscript.SigHashAnyOneCanPay == 0 {
-		sigHash.Write(sigHashes.HashPrevOuts[:])
+		// sigHash.Write(sigHashes.HashPrevOuts[:])
 	} else {
 		sigHash.Write(zeroHash[:])
 	}
@@ -115,7 +116,7 @@ func calcBip143SignatureHash(subScript []byte, sigHashes *txscript.TxSigHashes,
 	if hashType&txscript.SigHashAnyOneCanPay == 0 &&
 		hashType&sigHashMask != txscript.SigHashSingle &&
 		hashType&sigHashMask != txscript.SigHashNone {
-		sigHash.Write(sigHashes.HashSequence[:])
+		// sigHash.Write(sigHashes.HashSequence[:])
 	} else {
 		sigHash.Write(zeroHash[:])
 	}
@@ -146,7 +147,7 @@ func calcBip143SignatureHash(subScript []byte, sigHashes *txscript.TxSigHashes,
 	// pre-image.
 	if hashType&sigHashMask != txscript.SigHashSingle &&
 		hashType&sigHashMask != txscript.SigHashNone {
-		sigHash.Write(sigHashes.HashOutputs[:])
+		// sigHash.Write(sigHashes.HashOutputs[:])
 	} else if hashType&sigHashMask == txscript.SigHashSingle && idx < len(tx.TxOut) {
 		var b bytes.Buffer
 		wire.WriteTxOut(&b, 0, 0, tx.TxOut[idx])
@@ -248,12 +249,12 @@ func SignatureScript(tx *wire.MsgTx, idx int, subscript []byte, hashType txscrip
 		return nil, err
 	}
 
-	pk := (*btcec.PublicKey)(&privKey.PublicKey)
+	// pk := (*btcec.PublicKey)(&privKey.PublicKey)
 	var pkData []byte
 	if compress {
-		pkData = pk.SerializeCompressed()
+		// pkData = pk.SerializeCompressed()
 	} else {
-		pkData = pk.SerializeUncompressed()
+		// pkData = pk.SerializeUncompressed()
 	}
 
 	return txscript.NewScriptBuilder().AddData(sig).AddData(pkData).Script()
